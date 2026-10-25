@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLOBAL BYPASS V2.1 — Master Server Controller</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #080A0F;
+            --bg-card: rgba(16, 20, 28, 0.85);
+            --bg-card-border: rgba(255, 45, 75, 0.25);
+            --crimson: #E3263E;
+            --crimson-glow: rgba(227, 38, 62, 0.45);
+            --emerald: #35D681;
+            --emerald-glow: rgba(53, 214, 129, 0.45);
+            --silver: #E1E6ED;
+            --muted: #8A92A6;
+            --font-display: 'Orbitron', sans-serif;
+            --font-ui: 'Rajdhani', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(227, 38, 62, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 10% 90%, rgba(30, 40, 60, 0.4) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+            color: var(--silver);
+            font-family: var(--font-ui);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 580px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 18px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 40px var(--crimson-glow);
+            padding: 32px 28px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .container.online-mode {
+            border-color: rgba(53, 214, 129, 0.35);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 45px var(--emerald-glow);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-display);
+            font-size: 10.5px;
+            letter-spacing: 2px;
+            color: var(--crimson);
+            background: rgba(227, 38, 62, 0.12);
+            border: 1px solid rgba(227, 38, 62, 0.3);
+            border-radius: 20px;
+            padding: 5px 14px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .title {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: #FFFFFF;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* Power Switch Box */
+        .switch-panel {
+            background: rgba(10, 13, 19, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 26px 20px;
+            text-align: center;
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            margin-bottom: 18px;
+        }
+
+        .status-dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .online-dot {
+            background: var(--emerald);
+            box-shadow: 0 0 14px var(--emerald), 0 0 24px var(--emerald);
+            animation: pulse-green 1.8s infinite;
+        }
+
+        .offline-dot {
+            background: var(--crimson);
+            box-shadow: 0 0 14px var(--crimson), 0 0 24px var(--crimson);
+            animation: pulse-red 1.8s infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.15); }
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.65; transform: scale(1.15); }
+        }
+
+        /* Big Toggle Button */
+        .toggle-btn {
+            width: 100%;
+            padding: 16px 20px;
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .toggle-btn.btn-turn-off {
+            background: linear-gradient(135deg, #FF3B56 0%, #B8182D 100%);
+            color: #FFFFFF;
+            box-shadow: 0 6px 20px rgba(227, 38, 62, 0.45);
+        }
+
+        .toggle-btn.btn-turn-off:hover {
+            background: linear-gradient(135deg, #FF526B 0%, #D11C34 100%);
+            box-shadow: 0 8px 25px rgba(227, 38, 62, 0.65);
+            transform: translateY(-2px);
+        }
+
+        .toggle-btn.btn-turn-on {
+            background: linear-gradient(135deg, #3EE88E 0%, #1FA65F 100%);
+            color: #08140E;
+            box-shadow: 0 6px 20px rgba(53, 214, 129, 0.45);
+        }
+
+        .toggle-btn.btn-turn-on:hover {
+            background: linear-gradient(135deg, #53F29F 0%, #25BA6B 100%);
+            box-shadow: 0 8px 25px rgba(53, 214, 129, 0.65);
+            transform: translateY(-2px);
+        }
+
+        .status-desc {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 14px;
+            font-weight: 500;
+        }
+
+        /* Config fields */
+        .field-group {
+            margin-bottom: 16px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--silver);
+            margin-bottom: 6px;
+        }
+
+        .field-input {
+            width: 100%;
+            background: rgba(12, 15, 22, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 11px 14px;
+            font-family: var(--font-mono);
+            font-size: 13.5px;
+            color: #FFFFFF;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .field-input:focus {
+            border-color: var(--crimson);
+            box-shadow: 0 0 10px rgba(227, 38, 62, 0.3);
+        }
+
+        /* API Box */
+        .api-box {
+            background: rgba(8, 10, 15, 0.95);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 20px;
+        }
+
+        .api-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 5px;
+            color: var(--silver);
+            padding: 3px 10px;
+            font-size: 11.5px;
+            font-family: var(--font-ui);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--crimson);
+            border-color: var(--crimson);
+            color: #FFF;
+        }
+
+        .api-code {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: #00F0FF;
+            word-break: break-all;
+            user-select: text;
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(138, 146, 166, 0.6);
+            letter-spacing: 0.8px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #151922;
+            border: 1px solid var(--crimson);
+            color: #FFF;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <div class="brand-badge">⚡ Master Remote Controller</div>
+            <h1 class="title">GLOBAL BYPASS V2.1</h1>
+            <p class="subtitle">Cloud Online Authorization & Master Killswitch</p>
+        </div>
+
+        <!-- Master Switch Panel -->
+        <div class="switch-panel">
+            <div class="status-indicator">
+                <span class="status-dot online-dot" id="statusDot"></span>
+                <span id="statusText" style="color: var(--emerald);">SERVER ONLINE</span>
+            </div>
+
+            <button class="toggle-btn btn-turn-off" id="toggleBtn" onclick="toggleServerStatus()">
+                <span id="btnIcon">🛑</span>
+                <span id="btnText">TURN OFF SERVER (ALL EXES)</span>
+            </button>
+
+            <p class="status-desc" id="statusDesc">
+                Currently ACTIVE. All users worldwide are able to authenticate and launch bypass.
+            </p>
+        </div>
+
+        <!-- Admin Configuration -->
+        <div class="field-group">
+            <label class="field-label">Maintenance Notice / Status Message</label>
+            <input type="text" class="field-input" id="statusMsgInput" value="Global Bypass V2.1 Server Active" placeholder="Enter message displayed to users when offline...">
+        </div>
+
+        <div class="field-group">
+            <label class="field-label">Admin Security Key</label>
+            <input type="password" class="field-input" id="adminKeyInput" value="rixxy123" placeholder="Enter Admin Key (Default: rixxy123)">
+        </div>
+
+        <!-- Live API Endpoint URL Box -->
+        <div class="api-box">
+            <div class="api-header">
+                <span>Your Client Status Endpoint</span>
+                <button class="copy-btn" onclick="copyApiUrl()">Copy URL</button>
+            </div>
+            <div class="api-code" id="apiUrlDisplay">Loading...</div>
+        </div>
+
+        <div class="footer">
+            DEVELOPED BY rixxy.so  •  GLOBAL BYPASS V2.1 INFRASTRUCTURE
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Settings updated successfully!</div>
+
+    <script>
+        let currentState = {
+            is_online: true,
+            status: 'online',
+            message: 'Global Bypass V2.1 Server Active'
+        };
+
+        // Initialize API URL display
+        const apiEndpoint = window.location.origin + '/api/status';
+        document.getElementById('apiUrlDisplay').innerText = apiEndpoint;
+
+        // Load saved key from localStorage
+        const savedKey = localStorage.getItem('gb_admin_key');
+        if (savedKey) {
+            document.getElementById('adminKeyInput').value = savedKey;
+        }
+
+        async function fetchCurrentStatus() {
+            try {
+                const res = await fetch('/api/status?t=' + Date.now());
+                if (res.ok) {
+                    currentState = await res.json();
+                    updateUI(currentState);
+                }
+            } catch (err) {
+                console.error('Failed to fetch status:', err);
+            }
+        }
+
+        function updateUI(state) {
+            const container = document.getElementById('mainContainer');
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            const btn = document.getElementById('toggleBtn');
+            const btnIcon = document.getElementById('btnIcon');
+            const btnText = document.getElementById('btnText');
+            const desc = document.getElementById('statusDesc');
+
+            if (state.is_online) {
+                container.classList.add('online-mode');
+                dot.className = 'status-dot online-dot';
+                text.innerText = 'SERVER ONLINE';
+                text.style.color = 'var(--emerald)';
+
+                btn.className = 'toggle-btn btn-turn-off';
+                btnIcon.innerText = '🛑';
+                btnText.innerText = 'TURN OFF SERVER (LOCK EXES)';
+                desc.innerHTML = 'Status: <strong style="color:var(--emerald);">ONLINE</strong>. All users worldwide are able to log in and start bypass.';
+            } else {
+                container.classList.remove('online-mode');
+                dot.className = 'status-dot offline-dot';
+                text.innerText = 'SERVER OFFLINE';
+                text.style.color = 'var(--crimson)';
+
+                btn.className = 'toggle-btn btn-turn-on';
+                btnIcon.innerText = '⚡';
+                btnText.innerText = 'TURN ON SERVER (ALLOW LOGINS)';
+                desc.innerHTML = 'Status: <strong style="color:var(--crimson);">OFFLINE / MAINTENANCE</strong>. All client exes are blocked from logging in.';
+            }
+
+            if (state.message) {
+                document.getElementById('statusMsgInput').value = state.message;
+            }
+        }
+
+        async function toggleServerStatus() {
+            const key = document.getElementById('adminKeyInput').value.trim();
+            const msg = document.getElementById('statusMsgInput').value.trim();
+            localStorage.setItem('gb_admin_key', key);
+
+            const targetState = !currentState.is_online;
+
+            try {
+                const res = await fetch('/api/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        key: key,
+                        is_online: targetState,
+                        message: msg || (targetState ? 'Server Online' : 'Maintenance Mode')
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    currentState = data.state;
+                    updateUI(currentState);
+                    showToast(targetState ? '⚡ SERVER TURNED ON (Logins Enabled)' : '🛑 SERVER TURNED OFF (All Exes Locked)');
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Failed to update server status');
+                }
+            } catch (err) {
+                alert('Connection error: ' + err.message);
+            }
+        }
+
+        function copyApiUrl() {
+            navigator.clipboard.writeText(apiEndpoint).then(() => {
+                showToast('Endpoint URL copied to clipboard!');
+            });
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.innerText = text;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Poll status every 4 seconds for real-time sync across devices
+        fetchCurrentStatus();
+        setInterval(fetchCurrentStatus, 4000);
+    </script>
+</body>
+</html>

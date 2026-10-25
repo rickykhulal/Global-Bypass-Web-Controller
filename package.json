@@ -1,0 +1,17 @@
+{
+  "name": "global-bypass-web-controller",
+  "version": "2.1.0",
+  "description": "Global Bypass V2.1 Online Master Server & Killswitch Controller",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "global-bypass",
+    "master-switch",
+    "killswitch",
+    "server-control"
+  ],
+  "author": "rixxy.so",
+  "license": "ISC"
+}
