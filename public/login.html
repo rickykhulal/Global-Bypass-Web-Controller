@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Bypass – OTP Login</title>
+  <style>
+    body {font-family: Arial, sans-serif; background:#080a0f; color:#e1e6ed; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;}
+    .container {background:#101c24; padding:24px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.6); width:320px;}
+    h2 {margin-top:0; text-align:center; color:#e3263e;}
+    input {width:100%; padding:8px; margin:8px 0; border:none; border-radius:4px;}
+    button {width:100%; padding:10px; background:#3ee88e; color:#08140e; border:none; border-radius:4px; font-weight:bold; cursor:pointer;}
+    button:hover {background:#53f29f;}
+    .error {color:#ff4d4d; text-align:center;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Enter OTP</h2>
+    <form id="otpForm">
+      <input type="text" id="token" placeholder="6‑digit code" maxlength="6" required />
+      <button type="submit">Verify</button>
+    </form>
+    <p class="error" id="msg"></p>
+  </div>
+  <script>
+    const form = document.getElementById('otpForm');
+    const msg = document.getElementById('msg');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const token = document.getElementById('token').value.trim();
+      try {
+        const res = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          // reload to dashboard
+          window.location.href = '/';
+        } else {
+          msg.textContent = data.error || 'Invalid code';
+        }
+      } catch (err) {
+        msg.textContent = 'Network error';
+      }
+    });
+  </script>
+</body>
+</html>

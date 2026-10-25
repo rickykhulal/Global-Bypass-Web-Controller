@@ -1,9 +1,13 @@
+// Updated server with TOTP authentication layer
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const speakeasy = require('speakeasy'); // OTP library
+const QRCode = require('qrcode'); // QR generation
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'status_data.json');
+const AUTH_FILE = path.join(__dirname, 'auth_secret.json'); // stores TOTP secret
 const ADMIN_KEY = process.env.ADMIN_KEY || 'kismis*285667##$##09jhk12K-'; // Change this or set ADMIN_KEY env variable
 
 // Default status state
@@ -16,7 +20,7 @@ let statusState = {
     last_updated: new Date().toISOString()
 };
 
-// Load persisted state if exists
+// Load persisted status if exists
 if (fs.existsSync(DATA_FILE)) {
     try {
         const raw = fs.readFileSync(DATA_FILE, 'utf-8');
@@ -35,6 +39,34 @@ function saveState() {
     }
 }
 
+// Helper: read or generate TOTP secret
+function getOrCreateSecret() {
+    if (fs.existsSync(AUTH_FILE)) {
+        try { return JSON.parse(fs.readFileSync(AUTH_FILE, 'utf-8')).secret; } catch (_) {}
+    }
+    const secret = speakeasy.generateSecret({ length: 20 });
+    fs.writeFileSync(AUTH_FILE, JSON.stringify({ secret: secret.base32 }, null, 2));
+    console.log('[AUTH] New TOTP secret generated');
+    return secret.base32;
+}
+
+// Helper: simple cookie parser
+function parseCookies(req) {
+    const header = req.headers?.cookie || '';
+    return header.split(';').reduce((acc, cur) => {
+        const [k, v] = cur.trim().split('=');
+        if (k) acc[k] = v;
+        return acc;
+    }, {});
+}
+
+// Authentication middleware for protected routes (dashboard & toggle)
+function isAuthenticated(req) {
+    const cookies = parseCookies(req);
+    return cookies.auth === '1';
+}
+
+// Server creation
 const server = http.createServer((req, res) => {
     // Enable CORS for all requests
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -50,7 +82,7 @@ const server = http.createServer((req, res) => {
     const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const pathname = parsedUrl.pathname;
 
-    // --- Public API Endpoints ---
+    // Public status endpoints – no auth required
     if (pathname === '/api/status' || pathname === '/status.json' || pathname === '/status') {
         res.writeHead(200, {
             'Content-Type': 'application/json',
@@ -77,15 +109,76 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // --- Admin Toggle API ---
+    // ---------- Authentication endpoints ----------
+    // 1. Setup endpoint – returns QR code for the authenticator app (once)
+    if (pathname === '/api/setup' && req.method === 'GET') {
+        const secret = getOrCreateSecret();
+        const otpauth = speakeasy.otpauthURL({ secret, label: 'Global-Bypass', issuer: 'Global-Bypass' });
+        QRCode.toDataURL(otpauth, (err, dataUrl) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'QR generation failed' }));
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ otpauth_url: otpauth, qr_data_url: dataUrl }));
+        });
+        return;
+    }
+
+    // 2. Auth verification – client sends TOTP code
+    if (pathname === '/api/auth' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => (body += chunk));
+        req.on('end', () => {
+            try {
+                const payload = JSON.parse(body || '{}');
+                const token = payload.token;
+                const secret = getOrCreateSecret();
+                const verified = speakeasy.totp.verify({ secret, encoding: 'base32', token, window: 1 });
+                if (verified) {
+                    // set simple auth cookie (session‑less)
+                    res.writeHead(200, {
+                        'Content-Type': 'application/json',
+                        'Set-Cookie': 'auth=1; HttpOnly; Path=/'
+                    });
+                    res.end(JSON.stringify({ success: true }));
+                } else {
+                    res.writeHead(401, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Invalid OTP' }));
+                }
+            } catch (e) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Bad request' }));
+            }
+        });
+        return;
+    }
+
+    // Protected routes – require auth cookie
+    const protected = (pathname === '/' || pathname === '/index.html' || pathname === '/api/toggle');
+    if (protected && !isAuthenticated(req)) {
+        // Serve login page (simple HTML) from public folder
+        const loginPath = path.join(__dirname, 'public', 'login.html');
+        if (fs.existsSync(loginPath)) {
+            const loginHtml = fs.readFileSync(loginPath, 'utf-8');
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end(loginHtml);
+        } else {
+            res.writeHead(401, { 'Content-Type': 'text/plain' });
+            res.end('Authentication required');
+        }
+        return;
+    }
+
+    // ---------- Admin Toggle API (now protected) ----------
     if (pathname === '/api/toggle' && req.method === 'POST') {
         let body = '';
-        req.on('data', chunk => { body += chunk; });
+        req.on('data', chunk => (body += chunk));
         req.on('end', () => {
             try {
                 const payload = JSON.parse(body || '{}');
                 const key = payload.key || req.headers['authorization'];
-
                 if (key !== ADMIN_KEY) {
                     res.writeHead(401, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ error: 'Unauthorized: Invalid Admin Key' }));
@@ -97,7 +190,7 @@ const server = http.createServer((req, res) => {
                     statusState.status = payload.is_online ? 'online' : 'offline';
                 } else if (payload.status) {
                     statusState.status = payload.status === 'online' ? 'online' : 'offline';
-                    statusState.is_online = (statusState.status === 'online');
+                    statusState.is_online = statusState.status === 'online';
                 } else {
                     // Toggle current state
                     statusState.is_online = !statusState.is_online;
@@ -123,7 +216,7 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // --- Serve Admin Dashboard UI ---
+    // ---------- Serve Admin Dashboard UI (now after auth) ----------
     if (pathname === '/' || pathname === '/index.html') {
         const htmlPath = path.join(__dirname, 'public', 'index.html');
         if (fs.existsSync(htmlPath)) {
@@ -133,6 +226,7 @@ const server = http.createServer((req, res) => {
         }
     }
 
+    // Fallback 404
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not Found');
 });
