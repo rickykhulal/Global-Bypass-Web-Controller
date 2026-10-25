@@ -4,7 +4,7 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'status_data.json');
-const ADMIN_KEY = process.env.ADMIN_KEY || 'rixxy123'; // Change this or set ADMIN_KEY env variable
+const ADMIN_KEY = process.env.ADMIN_KEY || 'kismis*285667##$##09jhk12K-'; // Change this or set ADMIN_KEY env variable
 
 // Default status state
 let statusState = {

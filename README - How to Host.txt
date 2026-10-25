@@ -19,7 +19,7 @@ OPTION 1: RUN LOCALLY (ON YOUR PC / LAPTOP)
    http://localhost:3000
 
 4. Default Admin Key:
-   rixxy123
+   kismis*285667##$##09jhk12K-
 
 --------------------------------------------------------------------------------
 OPTION 2: HOST 100% FREE ONLINE (ACCESSIBLE FROM YOUR PHONE 24/7)
