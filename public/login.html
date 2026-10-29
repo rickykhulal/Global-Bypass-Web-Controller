@@ -29,19 +29,19 @@
     const msg = document.getElementById('msg');
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      const token = document.getElementById('token').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
       try {
         const res = await fetch('/api/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ username, password })
         });
         const data = await res.json();
         if (res.ok && data.success) {
-          // reload to dashboard
           window.location.href = '/';
         } else {
-          msg.textContent = data.error || 'Invalid code';
+          msg.textContent = data.error || 'Invalid credentials';
         }
       } catch (err) {
         msg.textContent = 'Network error';
