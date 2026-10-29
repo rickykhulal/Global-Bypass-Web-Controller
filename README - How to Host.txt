@@ -1,10 +1,10 @@
 ================================================================================
- GLOBAL BYPASS V2.1 — WEB CONTROLLER & ONLINE MASTER SWITCH
+ GLOBAL BYPASS V2.2 — WEB CONTROLLER & ONLINE MASTER SWITCH
  Developer: rixxy.so
 ================================================================================
 
 This web application gives you a cloud-accessible Master Switch to turn the
-Global Bypass V2.1 executable ON or OFF for all users worldwide in 1 click!
+Global Bypass V2.2 executable ON or OFF for all users worldwide in 1 click!
 
 --------------------------------------------------------------------------------
 OPTION 1: RUN LOCALLY (ON YOUR PC / LAPTOP)
@@ -49,7 +49,7 @@ HOW TO CONNECT GLOBAL BYPASS V2.EXE TO YOUR WEB CONTROLLER:
 1. Once your web controller is online, copy your status endpoint:
    e.g. https://my-bypass-server.onrender.com/api/status
 
-2. Open 'server_url.txt' in the Global Bypass V2.1 Distribution Package.
+2. Open 'server_url.txt' in the Global Bypass V2.2 Distribution Package.
 
 3. Paste your URL into 'server_url.txt' and save.
 

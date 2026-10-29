@@ -1,7 +1,7 @@
 {
   "name": "global-bypass-web-controller",
-  "version": "2.1.0",
-  "description": "Global Bypass V2.1 Online Master Server & Killswitch Controller",
+  "version": "2.2.0",
+  "description": "Global Bypass V2.2 Online Master Server & Multi-Version Controller",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
