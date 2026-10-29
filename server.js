@@ -126,19 +126,18 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // 2. Auth verification – client sends TOTP code
+    // 2. Auth verification – client sends username and password
     if (pathname === '/api/auth' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => (body += chunk));
         req.on('end', () => {
             try {
                 const payload = JSON.parse(body || '{}');
-                const token = payload.token;
-                // Dummy OTP for testing – accepts "69123663"
-                const isDummy = token === '69123663';
-                const secret = getOrCreateSecret();
-                const verified = isDummy || speakeasy.totp.verify({ secret, encoding: 'base32', token, window: 1 });
-                if (verified) {
+                const username = payload.username?.trim();
+                const password = payload.password?.trim();
+                // Simple hard‑coded credentials (replace with real auth as needed)
+                const valid = username === 'admin' && password === 'admin123';
+                if (valid) {
                     // set simple auth cookie (session‑less)
                     res.writeHead(200, {
                         'Content-Type': 'application/json',
@@ -147,7 +146,7 @@ const server = http.createServer((req, res) => {
                     res.end(JSON.stringify({ success: true }));
                 } else {
                     res.writeHead(401, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Invalid OTP' }));
+                    res.end(JSON.stringify({ error: 'Invalid username or password' }));
                 }
             } catch (e) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
