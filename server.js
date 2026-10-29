@@ -14,9 +14,15 @@ const ADMIN_KEY = process.env.ADMIN_KEY || 'kismis*285667##$##09jhk12K-'; // Cha
 let statusState = {
     status: 'online',
     is_online: true,
-    version: '2.1',
-    message: 'Global Bypass V2.1 Server Active',
+    version: '2.2',
+    active_version: '2.2',
+    allowed_versions: ['2.1', '2.2'],
+    message: 'Global Bypass V2.2 Server Active',
     developer: 'rixxy.so',
+    sha256: {
+        v2_1: 'B858E25682F069BD2E670C2BA2C8014AA549CBEBDFDD8F97E848215571C2C777',
+        v2_2: 'BA5DD2DB819BBFADDAFBD53DF2D795A73F4332FC19501DE7791936D817B304EE'
+    },
     last_updated: new Date().toISOString()
 };
 
@@ -196,6 +202,21 @@ const server = http.createServer((req, res) => {
                     // Toggle current state
                     statusState.is_online = !statusState.is_online;
                     statusState.status = statusState.is_online ? 'online' : 'offline';
+                }
+
+                if (payload.active_version && typeof payload.active_version === 'string') {
+                    statusState.active_version = payload.active_version;
+                    statusState.version = payload.active_version;
+                }
+
+                if (payload.allowed_versions) {
+                    statusState.allowed_versions = Array.isArray(payload.allowed_versions) 
+                        ? payload.allowed_versions 
+                        : [payload.allowed_versions];
+                }
+
+                if (payload.sha256 && typeof payload.sha256 === 'object') {
+                    statusState.sha256 = { ...statusState.sha256, ...payload.sha256 };
                 }
 
                 if (payload.message && typeof payload.message === 'string') {

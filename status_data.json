@@ -1,8 +1,17 @@
 {
   "status": "online",
   "is_online": true,
-  "version": "2.1",
-  "message": "Server Active",
+  "version": "2.2",
+  "active_version": "2.2",
+  "allowed_versions": [
+    "2.1",
+    "2.2"
+  ],
+  "message": "Global Bypass V2.2 Server Active",
   "developer": "rixxy.so",
-  "last_updated": "2026-10-25T17:46:19.571Z"
+  "sha256": {
+    "v2_1": "B858E25682F069BD2E670C2BA2C8014AA549CBEBDFDD8F97E848215571C2C777",
+    "v2_2": "BA5DD2DB819BBFADDAFBD53DF2D795A73F4332FC19501DE7791936D817B304EE"
+  },
+  "last_updated": "2026-10-29T13:38:00.000Z"
 }

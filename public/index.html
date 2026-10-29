@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GLOBAL BYPASS V2.1 — Master Server Controller</title>
+    <title>GLOBAL BYPASS V2.2 — Master Server Controller</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -16,6 +16,7 @@
             --crimson-glow: rgba(227, 38, 62, 0.45);
             --emerald: #35D681;
             --emerald-glow: rgba(53, 214, 129, 0.45);
+            --cyan: #00F0FF;
             --silver: #E1E6ED;
             --muted: #8A92A6;
             --font-display: 'Orbitron', sans-serif;
@@ -49,7 +50,7 @@
 
         .container {
             width: 100%;
-            max-width: 580px;
+            max-width: 620px;
             background: var(--bg-card);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -69,7 +70,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 26px;
+            margin-bottom: 24px;
         }
 
         .brand-badge {
@@ -99,21 +100,21 @@
         }
 
         .subtitle {
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13.5px;
             color: var(--muted);
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
-        /* Power Switch Box */
+        /* Master Switch Panel */
         .switch-panel {
-            background: rgba(10, 13, 19, 0.9);
+            background: rgba(10, 12, 18, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 26px 20px;
-            text-align: center;
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 22px;
-            position: relative;
+            text-align: center;
         }
 
         .status-indicator {
@@ -121,10 +122,10 @@
             align-items: center;
             gap: 10px;
             font-family: var(--font-display);
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 800;
-            letter-spacing: 1.5px;
-            margin-bottom: 18px;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
         }
 
         .status-dot {
@@ -132,79 +133,165 @@
             height: 13px;
             border-radius: 50%;
             display: inline-block;
-            transition: all 0.3s ease;
         }
 
-        .online-dot {
-            background: var(--emerald);
-            box-shadow: 0 0 14px var(--emerald), 0 0 24px var(--emerald);
+        .status-dot.online-dot {
+            background-color: var(--emerald);
+            box-shadow: 0 0 14px var(--emerald);
             animation: pulse-green 1.8s infinite;
         }
 
-        .offline-dot {
-            background: var(--crimson);
-            box-shadow: 0 0 14px var(--crimson), 0 0 24px var(--crimson);
+        .status-dot.offline-dot {
+            background-color: var(--crimson);
+            box-shadow: 0 0 14px var(--crimson);
             animation: pulse-red 1.8s infinite;
         }
 
         @keyframes pulse-green {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.15); }
+            0% { box-shadow: 0 0 4px var(--emerald); }
+            50% { box-shadow: 0 0 18px var(--emerald); }
+            100% { box-shadow: 0 0 4px var(--emerald); }
         }
 
         @keyframes pulse-red {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.65; transform: scale(1.15); }
+            0% { box-shadow: 0 0 4px var(--crimson); }
+            50% { box-shadow: 0 0 18px var(--crimson); }
+            100% { box-shadow: 0 0 4px var(--crimson); }
         }
 
-        /* Big Toggle Button */
         .toggle-btn {
             width: 100%;
-            padding: 16px 20px;
-            font-family: var(--font-display);
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: 1.5px;
+            padding: 13px 20px;
+            border-radius: 9px;
             border: none;
-            border-radius: 10px;
+            font-family: var(--font-display);
+            font-size: 13.5px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
             cursor: pointer;
             transition: all 0.25s ease;
-            text-transform: uppercase;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            text-transform: uppercase;
         }
 
-        .toggle-btn.btn-turn-off {
-            background: linear-gradient(135deg, #FF3B56 0%, #B8182D 100%);
+        .btn-turn-off {
+            background: linear-gradient(135deg, #E3263E 0%, #A81427 100%);
             color: #FFFFFF;
-            box-shadow: 0 6px 20px rgba(227, 38, 62, 0.45);
+            box-shadow: 0 8px 24px rgba(227, 38, 62, 0.4);
         }
 
-        .toggle-btn.btn-turn-off:hover {
-            background: linear-gradient(135deg, #FF526B 0%, #D11C34 100%);
-            box-shadow: 0 8px 25px rgba(227, 38, 62, 0.65);
+        .btn-turn-off:hover {
+            box-shadow: 0 10px 30px rgba(227, 38, 62, 0.65);
             transform: translateY(-2px);
         }
 
-        .toggle-btn.btn-turn-on {
-            background: linear-gradient(135deg, #3EE88E 0%, #1FA65F 100%);
-            color: #08140E;
-            box-shadow: 0 6px 20px rgba(53, 214, 129, 0.45);
+        .btn-turn-on {
+            background: linear-gradient(135deg, #35D681 0%, #1FA45E 100%);
+            color: #08120D;
+            box-shadow: 0 8px 24px rgba(53, 214, 129, 0.4);
         }
 
-        .toggle-btn.btn-turn-on:hover {
-            background: linear-gradient(135deg, #53F29F 0%, #25BA6B 100%);
-            box-shadow: 0 8px 25px rgba(53, 214, 129, 0.65);
+        .btn-turn-on:hover {
+            box-shadow: 0 10px 30px rgba(53, 214, 129, 0.65);
             transform: translateY(-2px);
         }
 
         .status-desc {
-            font-size: 13px;
+            font-size: 12.5px;
             color: var(--muted);
-            margin-top: 14px;
+            margin-top: 12px;
             font-weight: 500;
+        }
+
+        /* Version Card */
+        .version-card {
+            background: rgba(12, 16, 24, 0.95);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .version-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: var(--font-display);
+            font-size: 13px;
+            color: var(--cyan);
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .version-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .ver-opt {
+            background: rgba(20, 26, 38, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ver-opt:hover {
+            border-color: var(--cyan);
+        }
+
+        .ver-opt.active {
+            border-color: var(--emerald);
+            background: rgba(53, 214, 129, 0.12);
+            box-shadow: 0 0 12px rgba(53, 214, 129, 0.25);
+        }
+
+        .ver-opt-title {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 800;
+            color: #FFF;
+        }
+
+        .ver-opt-sub {
+            font-size: 10.5px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* SHA Section */
+        .sha-box {
+            background: rgba(8, 10, 15, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 8px;
+        }
+
+        .sha-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--silver);
+        }
+
+        .sha-hash {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            color: #00F0FF;
+            word-break: break-all;
+            user-select: text;
         }
 
         /* Config fields */
@@ -214,7 +301,7 @@
 
         .field-label {
             display: block;
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -227,9 +314,9 @@
             background: rgba(12, 15, 22, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 8px;
-            padding: 11px 14px;
+            padding: 10px 14px;
             font-family: var(--font-mono);
-            font-size: 13.5px;
+            font-size: 13px;
             color: #FFFFFF;
             outline: none;
             transition: border-color 0.2s ease;
@@ -246,7 +333,7 @@
             border: 1px dashed rgba(255, 255, 255, 0.15);
             border-radius: 10px;
             padding: 14px;
-            margin-top: 20px;
+            margin-top: 18px;
         }
 
         .api-header {
@@ -254,7 +341,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
             color: var(--muted);
             letter-spacing: 1px;
@@ -267,7 +354,7 @@
             border-radius: 5px;
             color: var(--silver);
             padding: 3px 10px;
-            font-size: 11.5px;
+            font-size: 11px;
             font-family: var(--font-ui);
             font-weight: 700;
             cursor: pointer;
@@ -275,9 +362,9 @@
         }
 
         .copy-btn:hover {
-            background: var(--crimson);
-            border-color: var(--crimson);
-            color: #FFF;
+            background: var(--cyan);
+            border-color: var(--cyan);
+            color: #081216;
         }
 
         .api-code {
@@ -288,10 +375,31 @@
             user-select: text;
         }
 
-        .footer {
-            margin-top: 24px;
-            text-align: center;
+        .save-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFF;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: var(--font-display);
             font-size: 12px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .save-btn:hover {
+            background: var(--emerald);
+            border-color: var(--emerald);
+            color: #08120D;
+        }
+
+        .footer {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 11.5px;
             color: rgba(138, 146, 166, 0.6);
             letter-spacing: 0.8px;
         }
@@ -324,8 +432,8 @@
     <div class="container" id="mainContainer">
         <div class="header">
             <div class="brand-badge">⚡ Master Remote Controller</div>
-            <h1 class="title">GLOBAL BYPASS V2.1</h1>
-            <p class="subtitle">Cloud Online Authorization & Master Killswitch</p>
+            <h1 class="title">GLOBAL BYPASS V2.2</h1>
+            <p class="subtitle">Cloud Online Authorization & Version Master Switch</p>
         </div>
 
         <!-- Master Switch Panel -->
@@ -345,10 +453,52 @@
             </p>
         </div>
 
+        <!-- Version Authorization & Choice Section -->
+        <div class="version-card">
+            <div class="version-title">
+                <span>🎯 Allowed Client Versions</span>
+                <span id="activeVerBadge" style="color: var(--emerald); font-size: 11px;">Active: V2.2</span>
+            </div>
+
+            <div class="version-options">
+                <div class="ver-opt" id="optBoth" onclick="selectVersionMode('both')">
+                    <div class="ver-opt-title">Both Allowed</div>
+                    <div class="ver-opt-sub">V2.1 & V2.2</div>
+                </div>
+                <div class="ver-opt active" id="optV22" onclick="selectVersionMode('v22')">
+                    <div class="ver-opt-title">Version 2.2</div>
+                    <div class="ver-opt-sub">Latest Only</div>
+                </div>
+                <div class="ver-opt" id="optV21" onclick="selectVersionMode('v21')">
+                    <div class="ver-opt-title">Version 2.1</div>
+                    <div class="ver-opt-sub">Legacy Only</div>
+                </div>
+            </div>
+
+            <!-- SHA-256 Checksums -->
+            <div class="sha-box">
+                <div class="sha-row">
+                    <span>Official V2.2 EXE SHA256:</span>
+                    <button class="copy-btn" onclick="copyText('BA5DD2DB819BBFADDAFBD53DF2D795A73F4332FC19501DE7791936D817B304EE')">Copy SHA</button>
+                </div>
+                <div class="sha-hash" id="sha22">BA5DD2DB819BBFADDAFBD53DF2D795A73F4332FC19501DE7791936D817B304EE</div>
+            </div>
+
+            <div class="sha-box" style="margin-top: 6px;">
+                <div class="sha-row">
+                    <span>Official V2.1 EXE SHA256:</span>
+                    <button class="copy-btn" onclick="copyText('B858E25682F069BD2E670C2BA2C8014AA549CBEBDFDD8F97E848215571C2C777')">Copy SHA</button>
+                </div>
+                <div class="sha-hash" id="sha21">B858E25682F069BD2E670C2BA2C8014AA549CBEBDFDD8F97E848215571C2C777</div>
+            </div>
+
+            <button class="save-btn" onclick="saveVersionSettings()">💾 SAVE VERSION & STATUS CONFIG</button>
+        </div>
+
         <!-- Admin Configuration -->
         <div class="field-group">
             <label class="field-label">Maintenance Notice / Status Message</label>
-            <input type="text" class="field-input" id="statusMsgInput" value="Global Bypass V2.1 Server Active" placeholder="Enter message displayed to users when offline...">
+            <input type="text" class="field-input" id="statusMsgInput" value="Global Bypass V2.2 Server Active" placeholder="Enter message displayed to users when offline...">
         </div>
 
         <div class="field-group">
@@ -366,7 +516,7 @@
         </div>
 
         <div class="footer">
-            DEVELOPED BY rixxy.so  •  GLOBAL BYPASS V2.1 INFRASTRUCTURE
+            DEVELOPED BY rixxy.so  •  GLOBAL BYPASS V2.2 INFRASTRUCTURE
         </div>
     </div>
 
@@ -376,8 +526,13 @@
         let currentState = {
             is_online: true,
             status: 'online',
-            message: 'Global Bypass V2.1 Server Active'
+            version: '2.2',
+            active_version: '2.2',
+            allowed_versions: ['2.1', '2.2'],
+            message: 'Global Bypass V2.2 Server Active'
         };
+
+        let selectedVerMode = 'both';
 
         // Initialize API URL display
         const apiEndpoint = window.location.origin + '/api/status';
@@ -401,6 +556,13 @@
             }
         }
 
+        function selectVersionMode(mode) {
+            selectedVerMode = mode;
+            document.getElementById('optBoth').classList.toggle('active', mode === 'both');
+            document.getElementById('optV22').classList.toggle('active', mode === 'v22');
+            document.getElementById('optV21').classList.toggle('active', mode === 'v21');
+        }
+
         function updateUI(state) {
             const container = document.getElementById('mainContainer');
             const dot = document.getElementById('statusDot');
@@ -419,7 +581,7 @@
                 btn.className = 'toggle-btn btn-turn-off';
                 btnIcon.innerText = '🛑';
                 btnText.innerText = 'TURN OFF SERVER (LOCK EXES)';
-                desc.innerHTML = 'Status: <strong style="color:var(--emerald);">ONLINE</strong>. All users worldwide are able to log in and start bypass.';
+                desc.innerHTML = 'Status: <strong style="color:var(--emerald);">ONLINE</strong>. Clients with authorized versions can authenticate and run bypass.';
             } else {
                 container.classList.remove('online-mode');
                 dot.className = 'status-dot offline-dot';
@@ -434,6 +596,70 @@
 
             if (state.message) {
                 document.getElementById('statusMsgInput').value = state.message;
+            }
+
+            if (state.active_version) {
+                document.getElementById('activeVerBadge').innerText = 'Active: V' + state.active_version;
+            }
+
+            // Sync version selection buttons
+            if (state.allowed_versions) {
+                const has21 = state.allowed_versions.includes('2.1');
+                const has22 = state.allowed_versions.includes('2.2');
+                if (has21 && has22) {
+                    selectVersionMode('both');
+                } else if (has22) {
+                    selectVersionMode('v22');
+                } else if (has21) {
+                    selectVersionMode('v21');
+                }
+            }
+
+            if (state.sha256) {
+                if (state.sha256.v2_2) document.getElementById('sha22').innerText = state.sha256.v2_2;
+                if (state.sha256.v2_1) document.getElementById('sha21').innerText = state.sha256.v2_1;
+            }
+        }
+
+        async function saveVersionSettings() {
+            const key = document.getElementById('adminKeyInput').value.trim();
+            const msg = document.getElementById('statusMsgInput').value.trim();
+            localStorage.setItem('gb_admin_key', key);
+
+            let allowed = ['2.1', '2.2'];
+            let active = '2.2';
+            if (selectedVerMode === 'v22') {
+                allowed = ['2.2'];
+                active = '2.2';
+            } else if (selectedVerMode === 'v21') {
+                allowed = ['2.1'];
+                active = '2.1';
+            }
+
+            try {
+                const res = await fetch('/api/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        key: key,
+                        is_online: currentState.is_online,
+                        active_version: active,
+                        allowed_versions: allowed,
+                        message: msg
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    currentState = data.state;
+                    updateUI(currentState);
+                    showToast('Version & status settings saved successfully!');
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Failed to update settings');
+                }
+            } catch (err) {
+                alert('Connection error: ' + err.message);
             }
         }
 
@@ -475,6 +701,12 @@
             });
         }
 
+        function copyText(txt) {
+            navigator.clipboard.writeText(txt).then(() => {
+                showToast('SHA256 Copied!');
+            });
+        }
+
         function showToast(text) {
             const toast = document.getElementById('toast');
             toast.innerText = text;
@@ -484,7 +716,6 @@
             }, 3000);
         }
 
-        // Poll status every 4 seconds for real-time sync across devices
         fetchCurrentStatus();
         setInterval(fetchCurrentStatus, 4000);
     </script>
